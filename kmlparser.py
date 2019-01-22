@@ -4,8 +4,7 @@ from pykml import parser
 import os
 from os import path
 import csv
-#####Open KML file#######################
-pathfile='data/history-2018-12-27.kml'
+import json
 
 def openkml(pathfile) :
     with open (pathfile) as f:
@@ -26,11 +25,9 @@ def KMLParser (Placemark) :
 
     for i in range (len(Placemark)):
         child=Placemark[i].getchildren()
-        #print("i=",i)
-        #print(child)
+
         for e in child :
             #Test if Point exist
-            #print(e.tag)
             if e.tag == "{http://www.opengis.net/kml/2.2}Point":
                 point_child=e.getchildren()
                 #Test if coordinates for the point exist
@@ -40,25 +37,15 @@ def KMLParser (Placemark) :
 
                         #Search the parents for name and category
                         parent=pi.getparent().getparent()
-                        #print(parent.getchildren())
-                        #print(parent[0].tag)
                         name[i]=parent.getchildren()[0]
 
                         #Category
                         #Category is in extend data (child of Placemark in position 3)
                         #Category data is a child of extend data in position 2
                         child=parent.getchildren()
-                        #print(child[2].tag)
                         if child[2].tag=="{http://www.opengis.net/kml/2.2}ExtendedData" :
-                            #print(child[2].tag)
                             extend=child[2].getchildren()
-                            #print(i)
-                            #print("in loop")
-                            #print(extend)
-                            #print(extend[1].getchildren())
                             category[i]=extend[1].getchildren()
-                            #print('print')
-                            #print(category[i])
                         if child[5].tag=="{http://www.opengis.net/kml/2.2}TimeSpan" :
                             time[i] = child[5].getchildren()
             #if e.tag=="{http://www.opengis.net/kml/2.2}TimeSpan" :
@@ -77,15 +64,12 @@ def make_category(name,category,namefile):
             nc.append(row[0])
             cc.append(row[1])
 
-    #print("nc",nc)
-    #print("name",name, len(name))
     ncategory=[None]*len(name)
     for i in range(len(name)):
-        #print("i= ",i)
-        #print(type(name[i]),str(name[i]))
-        # Read category from google maps and categorize them
+        # Read category from google maps and categorize them with our categories
         if "Magasin" in str(category[i]) or "Shop" in str(category[i]):
             ncategory[i] = 'Shopping'
+        #For Museum/Musee
         elif "Mus" in str(category[i]):
             ncategory[i] = "Socialization and Entertainment"
         elif str(category[i]) == "Bar":
@@ -93,12 +77,10 @@ def make_category(name,category,namefile):
         elif "Universtit" in str(category[i]):
             ncategory[i] = "Study Place"
         else:
-            # categorize others place using a 'dictionary'
-           # print(i,name[i])
+            # categorize others place by comparison with a list
             for j in range(len(nc)):
                 if nc[j] in str(name[i]):
                     ncategory[i] = cc[j]
-                    #print(ncategory[i])
             if ncategory[i] is None and i != 0:
                 ncategory[i] = "Socialization and Entertainment"
     return ncategory
@@ -122,48 +104,57 @@ def clean(name,coord,time,category) :
 def Writefile(filename, name, coord, time, category):
     with open(filename, mode='w') as history_file:
         history_file = csv.writer(history_file, lineterminator='\n')
-
-        # print(len(Placemark))
-        # print(type(coord[2][0]))
         header = ["name", "x", "y", "z", "begin", "end", "category"]
         history_file.writerows([header])
         for i in range(len(name)):
             row = [str(name[i]), str(coord[i][0]), str(coord[i][1]), str(coord[i][2]), str(time[i][0]), str(time[i][1]),
                    str(category[i])]
-            # print(row)
             history_file.writerow(row)
 
-####Open several file
-list_file=[]
-path="data\\"
-outputpath="csv\\"
-files=os.listdir(path)
+def WriteJsonfile(filename,name,coord,time,category) :
+    ######TO DOOOO
+    for i in range (len(name)):
+        out=json.dumps({'name': str(name[i]), 'x': float(coord[i][0]), 'y':float(coord[i][1]),'begin':str(time[i][0]),'end' :str(time[i][1]),'category': str(category[i])})
+        file=open(filename,'w')
+        file.write(out)
 
 
-#make a list of kml file
-for file in files :
-    if file.endswith(".kml"):
-        list_file.append(file)
+if __name__ == '__main__':
 
-count=0
+    ####Open several file
+    list_file=[]
+    path="data\\"
+    outputpath="csv\\"
+    outjson="tm_json\\"
+    files=os.listdir(path)
 
 
-for file in list_file :
+    #make a list of kml file
+    for file in files :
+        if file.endswith(".kml"):
+            list_file.append(file)
 
-    pathfile=path+file
-    pathfile=os.path.abspath(pathfile)
-    #print('working directory',os.getcwd())
-    #print('path',pathfile)
-    root=openkml(pathfile)
+    count=0
 
-    Placemark = root.Document.Placemark
-    [name, coord, time, category] = KMLParser(Placemark)
-    [name, coord, time, category] = clean(name, coord, time, category)
-    ncat = make_category(name, category, "listcategoryM.csv")
-    #print("new category", ncat)
 
-    output=outputpath+file.split('.')[0]+'.csv'
-    Writefile(output, name, coord, time, ncat)
-    count+=1
-    print(count,output)
+    for file in list_file :
+
+        pathfile=path+file
+        pathfile=os.path.abspath(pathfile)
+        #print('working directory',os.getcwd())
+        #print('path',pathfile)
+        root=openkml(pathfile)
+
+        Placemark = root.Document.Placemark
+        [name, coord, time, category] = KMLParser(Placemark)
+        [name, coord, time, category] = clean(name, coord, time, category)
+        ncat = make_category(name, category, "listcategoryM.csv")
+        #print("new category", ncat)
+
+        output=outputpath+file.split('.')[0]+'.csv'
+        json_file=outjson+file.split('.')[0]+'.json'
+        Writefile(output, name, coord, time, ncat)
+        WriteJsonfile(json_file, name, coord, time, ncat)
+        count+=1
+        print(count,output,json_file)
 
