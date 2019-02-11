@@ -4,7 +4,7 @@ This project contains :
 * Script for converting KML file and make category : timelineprocess.py
 * Script for merge the data: merge.py 
 
-All these scripts were made in Python36
+All these scripts were made in Python3.6
 # Libraries
 ## PyKML
 
@@ -16,7 +16,7 @@ pip install pyKML
 urllib will cause an error on python 3
 
 For python 3 you will need to modify parser.py in the library pyKML.
-### Modify parser.py on python36
+### Modify parser.py on python3.6
 Modify parser.py from the library pykml
 
 Replace 
@@ -70,11 +70,11 @@ This script convert the KML file into CSV and Json file. It also make new catego
 ## How to use it 
 
 * Put KML file in data/timeline/kml
-*Run timelineprocess 
+* Run timelineprocess 
 ```
 python timelineprocess.py
 ```
-*The output files will be in data/timeline/csv and data/timeline/json 
+* The output files will be in data/timeline/csv and data/timeline/json 
 
 ### How works the category
 
@@ -122,9 +122,9 @@ python extractrescuetime.py -d 2019-02-08
 
 
 # Merge script 
-Merge call the others scripts and merge the data. 
-It make the files all.csv and all.json in data and also separate json files for each days in data/json
-To run merge
+* Merge call the others scripts and merge the data. 
+* It make the files all.csv and all.json in data and also separate json files for each days in data/json
+* To run merge
 ```
 python merge.py -d <year-month-day> -p <participant_number>
 ```
