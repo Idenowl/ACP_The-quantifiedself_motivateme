@@ -1,4 +1,5 @@
-
+import os
+import sys, getopt
 import requests
 import  urllib.request #replace this line by urllib2 if you use python 2
 import datetime
@@ -41,11 +42,24 @@ def extract (date,API):
     if r2 :
         print(filename_json)
 
+if __name__ == '__main__':
+    key_path = 'key/APIkey.txt'
+    API = readAPIkey(key_path)
 
-now = datetime.datetime.now()
-key_path='key/APIkey.txt'
-API=readAPIkey(key_path)
+    argv = sys.argv[1:]
+    try:
+        opts, args = getopt.getopt(argv, "hd:", "idate=")
+    except getopt.GetoptError:
+        print
+        'test.py -d <year-month-day>'
+        sys.exit(2)
+    for opt, arg in opts:
+        if opt == '-h':
+            print
+            'test.py -d <year-month-day> '
+            sys.exit()
+        elif opt in ("-d", "--idate"):
+            date = arg
 
-add_date=date(2019,2,8)
-print(add_date)
-extract(add_date,API)
+    print('Extraction rescue_time : ', date)
+    extract(date,API)
