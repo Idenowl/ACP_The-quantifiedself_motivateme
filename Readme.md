@@ -123,6 +123,7 @@ python extractrescuetime.py -d 2019-02-08
 
 # Merge script 
 Merge call the others scripts and merge the data. 
+It make the files all.csv and all.json in data and also separate json files for each days in data/json
 To run merge
 ```
 python merge.py -d <year-month-day> -p <participant_number>
