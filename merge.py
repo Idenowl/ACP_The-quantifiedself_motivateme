@@ -111,12 +111,11 @@ def import_emotion(date,participant) :
         else :
             # Format month-day-year
             new_date = date[1] + "/" + date[2] + "/" + date[0]
-
         for row in reader :
             #check the corresponding date
-            if new_date in row[fieldname[0]]:
+            if new_date in str(row[fieldname[0]]):
                 #check the corresponding participant
-                if int(row[fieldname[1]]) == participant:
+                if int(row[fieldname[1]]) == int(participant):
                     for i in range(2,22):
                         #split the fieldname for processing and also for better lisibility (header for activities)
                         header_temp = fieldname[i].split('[')
@@ -129,7 +128,8 @@ def import_emotion(date,participant) :
                                 data[i]=1
                             else :
                                 data[i]=0
-                            fieldname[i]=header_temp #make a better header for final file
+                            fieldname[i] = header_temp  # make a better header for final file
+
                         #check the value for emotional state
                         if "Emotional State Survey" in fieldname[i]:
                             #Remove ? for processing
