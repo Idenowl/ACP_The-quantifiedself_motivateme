@@ -2,10 +2,10 @@ This project contains :
 	-Script for extracting data from Rescuetime 
 	-Script for extracting data from Drive, sleep data and questionaire
 	-Script for converting KML file and make category : timelineprocess.py
-	-Script for merge the data:merge.py 
+	-Script for merge the data: merge.py 
 
 # Libraries
-## timeline processs
+## PyKML
 
 Library: pyKML
 ```
@@ -23,7 +23,7 @@ by
 ```
 urllib.request
 ```
-[For more information] (https://hk.saowen.com/a/842ebc6395113594f3132b11c04f46c77f74ffd55e6c85f5d3063d8d36eb7314)
+[For more information](https://hk.saowen.com/a/842ebc6395113594f3132b11c04f46c77f74ffd55e6c85f5d3063d8d36eb7314)
 
 ## Google drive API 
 ```
@@ -42,9 +42,9 @@ The output files will be in data/timeline/csv and data/timeline/json
 
 ### How works the category
 
-	First it check the category given by google and label new category with this information. (to improve)
-	Then, it compare with the file listcategoryM who give category to name place. We have different home,different work place..., we can have each one list
-	After theses steps if no category it took the hypothese that we are in a friend places or spend time somewhere/socializing.
+First it check the category given by google and label new category with this information. (to improve)
+Then, it compare with the file listcategoryM who give category to name place. We have different home,different work place..., we can have each one list
+After theses steps if no category it took the hypothese that we are in a friend places or spend time somewhere/socializing.
 
 You should edit the listcategoryM.csv and place your home, workplace etc
 
@@ -52,7 +52,7 @@ You should edit the listcategoryM.csv and place your home, workplace etc
 ## OAuth 
 ### Client ID
 Test with credentials.json our project drive in part 2 design and implementation and put in in the root of working directory or make a new one
-### Make a new Client ID
+#### Make a new Client ID
 [go on google API console](https://console.developers.google.com/) 
 Create a new project and allow drive API
 Identifiants(key symbol) 
@@ -73,7 +73,7 @@ Note if your use python 2 : change import urllib.request to import urllib2
 Copy the value of your API key in key/APIkey.txt 
 The script will read your API key in this text file.
 
-#Merge script 
+# Merge script 
 
 Merge all the data in csv and json file 
 
