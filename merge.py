@@ -2,6 +2,7 @@ import csv
 import datetime
 import os
 import json
+import sys, getopt
 
 #####import and process rescue time
 def import_rescue(date):
@@ -335,13 +336,33 @@ def Create_update_json_all(date,participant) :
             json.dump(data, jsonfile,indent=4)
         print("update",path)
 if __name__ == '__main__':
+    '''
+    if len(sys.argv) > 1 :
+        print(sys.argv[1])
+        date=str(sys.argv[1])
+    if len(sys.argv) == 1 :
+        date = '2019-02-09'
+    '''
+    argv=sys.argv[1:]
+    try:
+        opts, args = getopt.getopt(argv, "hd:p:", ["idate=","ipart"])
+    except getopt.GetoptError:
+        print
+        'test.py -d <year-month-day> -p <participant_number>'
+        sys.exit(2)
+    for opt, arg in opts:
+        if opt == '-h':
+            print
+            'test.py -d <year-month-day> -p <participant_number>'
+            sys.exit()
+        elif opt in ("-d", "--idate"):
+            date = arg
+        elif opt in ("-p", "--ipart"):
+            participant = arg
+    print('Execution : ',date,'Participant',participant)
 
-    date='2019-02-09'
-    Writecsv(date,4)
-    WriteJson_date(date,4)
-    Create_update_json_all(date,4)
-    new_date='2019-02-10'
-    Create_update_json_all(new_date,4)
-
+    Writecsv(date, participant)
+    WriteJson_date(date, participant)
+    Create_update_json_all(date, participant)
 
 
