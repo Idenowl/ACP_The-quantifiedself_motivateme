@@ -4,6 +4,7 @@ This project contains :
 * Script for converting KML file and make category : timelineprocess.py
 * Script for merge the data: merge.py 
 
+All these scripts were made in Python36
 # Libraries
 ## PyKML
 
@@ -12,10 +13,13 @@ Library: pyKML
 pip install pyKML
 ```
 
-If you use python 3, urllib may cause an error. 
-Use python 2 or modify parser.py in the library pyKML.
+urllib will cause an error on python 3
 
-If you use python 3, in parser.py (in PML lib) replace 
+For python 3 you will need to modify parser.py in the library pyKML.
+### Modify parser.py on python36
+Modify parser.py from the library pykml
+
+Replace 
 ```
 import urllib2
 ```
@@ -23,6 +27,36 @@ by
 ```
 urllib.request
 ```
+#### In a Virtual environnement 
+I recommand to use a virtualenv.
+
+After cloning the repository :
+```
+virtualenv ACP_The-quantifiedself_motivateme
+cd ACP_The-quantifiedself_motivateme
+Scripts\activate 
+pip install pykml
+```
+And also install other librairies :
+```
+pip install --upgrade google-api-python-client google-auth-httplib2 google-auth-oauthlib
+```
+You will find the file to modify in : 
+```
+ACP_The-quantifiedself_motivateme\Lib\site-packages\pykml\parser.py
+```
+You will need to activate it, each session you want to use your virtualenv
+```
+Scripts\activate 
+```
+
+#### Find parser.py on windows 
+If you don't use virtualenv.
+The path of the file to modify may be the following path :
+```
+C:\Users\username\AppData\Local\Programs\Python\Python36\Lib\site-packages\pykml\parser.py
+```
+
 [For more information](https://hk.saowen.com/a/842ebc6395113594f3132b11c04f46c77f74ffd55e6c85f5d3063d8d36eb7314)
 
 ## Google drive API 
