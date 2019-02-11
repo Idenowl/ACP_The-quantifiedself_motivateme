@@ -1,6 +1,6 @@
 This project contains :  
-* Script for extracting data from Rescuetime 
-* Script for extracting data from Drive, sleep data and questionaire
+* Script for extracting data from Rescuetime extractrescuetime.py
+* Script for extracting data from Drive, sleep data and questionaire extractsleep.py
 * Script for converting KML file and make category : timelineprocess.py
 * Script for merge the data: merge.py 
 
@@ -25,7 +25,7 @@ import urllib2
 ```
 by 
 ```
-urllib.request
+ import urllib.request
 ```
 #### In a Virtual environnement 
 I recommand to use a virtualenv.
@@ -52,7 +52,7 @@ Scripts\activate
 
 #### Find parser.py on windows 
 If you don't use virtualenv.
-The path of the file to modify may be the following path :
+The path of the file to modify parser.py may be the following path :
 ```
 C:\Users\username\AppData\Local\Programs\Python\Python36\Lib\site-packages\pykml\parser.py
 ```
@@ -64,15 +64,17 @@ C:\Users\username\AppData\Local\Programs\Python\Python36\Lib\site-packages\pykml
 pip install --upgrade google-api-python-client google-auth-httplib2 google-auth-oauthlib
 ```
 
-
 # TimelineProcess 
 This script convert the KML file into CSV and Json file. It also make new categorization. 
 
 ## How to use it 
 
-Put KML file in data/timeline/kml
-Run kml parser.py 
-The output files will be in data/timeline/csv and data/timeline/json 
+* Put KML file in data/timeline/kml
+*Run timelineprocess 
+```
+python timelineprocess.py
+```
+*The output files will be in data/timeline/csv and data/timeline/json 
 
 ### How works the category
 
@@ -85,7 +87,7 @@ You should edit the listcategoryM.csv and place your home, workplace etc
 # Extract data from Google Drive 
 ## OAuth 
 ### Client ID
-Test with credentials.json our project drive in part 2 design and implementation and put in in the root of working directory or make a new one
+Test with the actual credentials.json should work or try with a new client ID for OAuth.
 #### Make a new Client ID
 * [Go on google API console](https://console.developers.google.com/) 
 * Create a new project and allow drive API
@@ -95,11 +97,16 @@ Test with credentials.json our project drive in part 2 design and implementation
 
 ## Get the data from Sleep app 
 * Allow the synchronization with google drive on Sleep App
-* findfileid_sleep() return the file ID of the Sleep  
+* findfileid_sleep() return the file ID of the Sleep
+
 ## Get the data from questionaires 
 The file ID link to result of the form copy on our google drive project
-This will be update if changes.
+This will be update if we changes it.
 
+The script can be run individially 
+```
+python pythonextractsleep.py
+```
 # Extract data from Rescue Time : 
 Note if your use python 2 : change import urllib.request to import urllib2
 
@@ -107,7 +114,25 @@ Note if your use python 2 : change import urllib.request to import urllib2
 Copy the value of your API key in key/APIkey.txt 
 The script will read your API key in this text file.
 
-# Merge script 
+The script can be run individially 
+```
+python extractrescuetime.py -d <year-month-day>
+python extractrescuetime.py -d 2019-02-08
+```
 
-Merge all the data in csv and json file 
+
+# Merge script 
+Merge call the others scripts and merge the data. 
+To run merge
+```
+python merge.py -d <year-month-day> -p <participant_number>
+```
+Example
+```
+python merge.py 2019-02-08 -p 4
+```
+
+
+
+ 
 
