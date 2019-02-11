@@ -3,6 +3,7 @@ import datetime
 import os
 import json
 import sys, getopt
+import subprocess
 
 #####import and process rescue time
 def import_rescue(date):
@@ -19,7 +20,6 @@ def import_rescue(date):
             reader = csv.DictReader(csvfile)
             for row in reader:
                 row['Time Spent (seconds)']=int(row['Time Spent (seconds)'])/60 #put in minutes
-                print(row['Category'])
                 for i in range(len(rescue_data_header)):
                     if rescue_data_header[i]==row['Category']:
                         rescue_data_time[i]=int(row['Time Spent (seconds)'])/60
@@ -71,7 +71,7 @@ def import_sleep(date) :
     data=[None]*4
     date=date.split('-')
     new_date_format=date[2]+'. '+date[1]+'. '+date[0]
-
+    test=False
     file_sleep = 'data/sleep/sleep.csv'
     with open(file_sleep) as csvfile :
         reader=csv.DictReader(csvfile)
@@ -83,8 +83,9 @@ def import_sleep(date) :
                 data[1]=row['To']
                 data[2]=row['Hours']
                 data[3]=row['DeepSleep']
-        if data[0] == None :
-            print('Warning, sleep data if empty')
+                test= True
+    if not test :
+        print('Warning, sleep data if empty')
     return header,data
 
 def import_emotion(date,participant) :
@@ -95,7 +96,6 @@ def import_emotion(date,participant) :
     '''
     positive_score=0
     negative_score=0
-
     negative_list=['Upset','Hostile','Ashamed','Nervous','Afraid']
     positive_list=['Alert','Inspired','Determined','Attentive','Active']
 
@@ -107,10 +107,10 @@ def import_emotion(date,participant) :
         data=[None]*len(fieldname)
         if fieldname[0] == 'Horodateur' :
             # Format day-month-year
-            new_date = date[2] + '/' + date[1] + '/' + date[0]
+            new_date = date[2] + "/" + date[1] + "/" + date[0]
         else :
             # Format month-day-year
-            new_date = date[1] + '/' + date[2] + '/' + date[0]
+            new_date = date[1] + "/" + date[2] + "/" + date[0]
 
         for row in reader :
             #check the corresponding date
@@ -223,12 +223,12 @@ def import_location(date) :
                     home+=timespent
     else:
         print('No kml file for', date)
-        data=[]
-        data.append(work)
-        data.append(food)
-        data.append(social)
-        data.append(shopping)
-        data.append(home)
+    data=[]
+    data.append(work)
+    data.append(food)
+    data.append(social)
+    data.append(shopping)
+    data.append(home)
     return header, data
 
 def Writecsv(date,participant):
@@ -326,12 +326,12 @@ def Create_update_json_all(date,participant) :
     if (os.path.isfile(path)) == False:
         with open(path, 'w') as jsonfile:
             json.dump(dict, jsonfile)
-    print("json file created : ",path)
+        print("json file created : ",path)
     if (os.path.isfile(path))==True :
         with open(path) as jsonfile:
             data = json.load(jsonfile)
-            #data.update(dict)
-            data[date]=dict
+            data.update(dict)
+            #data[date]=dict
         with open(path, 'w') as jsonfile:
             json.dump(data, jsonfile,indent=4)
         print("update",path)
@@ -360,9 +360,23 @@ if __name__ == '__main__':
         elif opt in ("-p", "--ipart"):
             participant = arg
     print('Execution : ',date,'Participant',participant)
+    date=str(date)
+
+    rescuecommand='python extractrescuetime.py '+'-d '+date
+    timelinecommand='python timelineprocess.py'
+    extractsleep='python extractsleep.py'
+
+    p1=subprocess.Popen(rescuecommand)
+    p2=subprocess.Popen(timelinecommand)
+    p3=subprocess.Popen(extractsleep)
+
+    p1.wait()
+    p2.wait()
+    p3.wait()
 
     Writecsv(date, participant)
     WriteJson_date(date, participant)
     Create_update_json_all(date, participant)
+
 
 
