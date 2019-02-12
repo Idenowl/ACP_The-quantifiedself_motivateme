@@ -177,7 +177,7 @@ def import_stress(date,participant) :
             # check the corresponding date
             if new_date in row[fieldname[0]]:
                 # check the corresponding participant
-                if int(row[fieldname[1]]) == participant :
+                if int(row[fieldname[1]]) == int(participant) :
                     stress_score = 0
                     for i in range (2,len(fieldname)) :
                         value_temp = row[fieldname[i]].split(' ')
