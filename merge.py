@@ -117,7 +117,7 @@ def import_emotion(date,participant) :
                 #check the corresponding participant
                 if int(row[fieldname[1]]) == int(participant):
                     for i in range(2,22):
-                        #split the fieldname for processing and also for better lisibility (header for activities)
+                        #split the fieldname for processing
                         header_temp = fieldname[i].split('[')
                         header_temp = header_temp[1].split(']')
                         header_temp = header_temp[0]
@@ -143,6 +143,11 @@ def import_emotion(date,participant) :
                                 value_temp = row[fieldname[i]].split(' ')
                                 negative_score+=int(value_temp[0])
             else:
+                for i in range (2,12):
+                    header_temp = fieldname[i].split('[')
+                    header_temp = header_temp[1].split(']')
+                    header_temp = header_temp[0]
+                    fieldname[i] = header_temp
                 print('No emotion data for the date',date)
 
         ratio=positive_score-negative_score
@@ -285,13 +290,13 @@ def make_data_dict(date,participant):
     location_header, location_data = import_location(date)
     # Join the lists
     header = []
-    header.append('date')
-    header.append('participant')
+    header.append('Date')
+    header.append('UserID')
     header.append(stress_header)
     header = header + sleep_header + emotion_header + rescue_header + location_header
     data = []
     data.append(date)
-    data.append(participant)
+    data.append(int(participant))
     data.append(stress_data)
     data = data + sleep_data + emotion_data + rescue_data + location_data
     dict = listtodictionary(header, data)
@@ -306,7 +311,7 @@ def WriteJson_date(date,participant) :
     #Join the lists
 
     #make json file
-    pathjson='data/json/'+date+'.json'
+    pathjson='data/json/'+participant+'_'+date+'.json'
     dict=make_data_dict(date,participant)
 
     with open(pathjson,'w',encoding='utf8') as jsonfile :
@@ -320,7 +325,8 @@ def Create_update_json_all(date,participant) :
     :return:
     '''
     dict={}
-    dict[date]=make_data_dict(date,participant)
+    key=participant+'_'+date
+    dict[key]=make_data_dict(date,participant)
 
     path='data/all.json'
     if (os.path.isfile(path)) == False:
