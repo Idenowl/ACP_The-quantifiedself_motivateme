@@ -13,7 +13,7 @@ def import_rescue(date):
     :return: header(list of string) of rescue time data, list rescue data time
     '''
     file_rescue='data/rescuetime/csv/'+date+'.csv'
-    rescue_data_header=['Utilities','Entertainment','Communication & Scheduling','Social Networking','Reference & Learning','Software Development','News & Opinion','Shopping','Uncategorized','Design & Composition']
+    rescue_data_header=['Utilities','Entertainment','Communication-Scheduling','Social-Networking','Reference-Learning','Software-Development','News-Opinion','Shopping','Uncategorized','Design-Composition']
     rescue_data_time=[None]*len(rescue_data_header)
     if (os.path.isfile(file_rescue)) == True :
         with open(file_rescue) as csvfile:
@@ -40,7 +40,7 @@ def import_rescueAlt(date):
     :return: list(string) :  header(rescue_data_header) for final file , list(string) data (rescue_data_time)
     '''
     file_rescue='data/rescuetime/csv/'+date+'.csv'
-    rescue_data_header=['Work and learning(min)','Entertainment','Utilities','Communication & Scheduling','Social Networking','Uncategorized']
+    rescue_data_header=['Work-learning(min)','Entertainment','Utilities','Communication-Scheduling','Social-Networking','Uncategorized']
     rescue_data_time=[None]*len(rescue_data_header)
     save_work=0
     save_ent=0
@@ -128,7 +128,7 @@ def import_emotion(date,participant) :
                                 data[i]=1
                             else :
                                 data[i]=0
-                            fieldname[i] = header_temp  # make a better header for final file
+                            #fieldname[i] = header_temp  # make a better header for final file
 
                         #check the value for emotional state
                         if "Emotional State Survey" in fieldname[i]:
@@ -143,20 +143,23 @@ def import_emotion(date,participant) :
                                 value_temp = row[fieldname[i]].split(' ')
                                 negative_score+=int(value_temp[0])
             else:
-                for i in range (2,12):
-                    header_temp = fieldname[i].split('[')
-                    header_temp = header_temp[1].split(']')
-                    header_temp = header_temp[0]
-                    fieldname[i] = header_temp
                 print('No emotion data for the date',date)
+        #Make header more lisible
+        #for i in range (2,12):
+            #header_temp = fieldname[i].split('[')
+            #print(header_temp[1])
+            #header_temp = header_temp[1].split(']')
+            #header_temp = header_temp[0]
+            #fieldname[i] = header_temp
 
+        header=['Cooking', 'Hanging','ExerciseandSport','Visiting','Passive-Hobbies','Active-Hobbies','Studying','Working','Accident','Sleeping']
+        #calculation of the score
         ratio=positive_score-negative_score
-        fieldname=fieldname[2:12]
         data=data[2:12]
-        fieldname.append('Emotional score')
+        header.append('Emotional score')
         data.append(ratio)
 
-    return fieldname,data
+    return header,data
 
 def import_stress(date,participant) :
     '''
@@ -205,7 +208,7 @@ def import_location(date) :
     home=0
     social=0
     shopping=0
-    header = ['Studying and working', 'Food', 'Socialization and Entertainment', 'Shopping', 'Home']
+    header = ['Studying-working', 'Food', 'Socialization-Entertainment', 'Shopping', 'Home']
     if (os.path.isfile(file_location))==True :
         with open(file_location) as csvfile :
             reader=csv.DictReader(csvfile)
@@ -311,8 +314,10 @@ def WriteJson_date(date,participant) :
     #Join the lists
 
     #make json file
+    dict={}
     pathjson='data/json/'+participant+'_'+date+'.json'
-    dict=make_data_dict(date,participant)
+    key='User'+participant
+    dict[key]=make_data_dict(date,participant)
 
     with open(pathjson,'w',encoding='utf8') as jsonfile :
         json.dump(dict,jsonfile,indent=4)
@@ -325,7 +330,8 @@ def Create_update_json_all(date,participant) :
     :return:
     '''
     dict={}
-    key=participant+'_'+date
+    #key=participant+'_'+date
+    key="User"+participant+'_'+date
     dict[key]=make_data_dict(date,participant)
 
     path='data/all.json'
@@ -353,8 +359,7 @@ if __name__ == '__main__':
     try:
         opts, args = getopt.getopt(argv, "hd:p:", ["idate=","ipart"])
     except getopt.GetoptError:
-        print
-        'test.py -d <year-month-day> -p <participant_number>'
+        print('test.py -d <year-month-day> -p <participant_number>')
         sys.exit(2)
     for opt, arg in opts:
         if opt == '-h':
@@ -369,7 +374,7 @@ if __name__ == '__main__':
     date=str(date)
 
     rescuecommand='python extractrescuetime.py '+'-d '+date
-    timelinecommand='python timelineprocess.py'
+    timelinecommand='python timelineprocess.py '+'-d '+date
     extractsleep='python extractsleep.py'
 
     p1=subprocess.Popen(rescuecommand)

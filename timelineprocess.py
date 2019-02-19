@@ -5,6 +5,8 @@ import os
 from os import path
 import csv
 import json
+import sys, getopt
+
 
 def openkml(pathfile) :
     '''
@@ -71,8 +73,10 @@ def make_category(name,category,namefile):
     :param namefile: path of the file to read places labelled(string)
     :return:list of newcategory(list of string)
     '''
-    nc = []
-    cc = []
+    nc = [] #name of places from the reference list file
+    cc = [] #name of corresponding category in the reference list file
+
+    #get the reference list file
     with open(namefile) as listcat:
         list_cat = csv.reader(listcat, delimiter=';')
 
@@ -93,7 +97,7 @@ def make_category(name,category,namefile):
         elif "Universtit" in str(category[i]):
             ncategory[i] = "Studying and working"
         else:
-            # categorize others place by comparison with a list
+            # categorize others place by comparison with the reference list file
             for j in range(len(nc)):
                 if nc[j] in str(name[i]):
                     ncategory[i] = cc[j]
@@ -143,43 +147,75 @@ def WriteJsonfile(filename,name,coord,time,category) :
         file=open(filename,'w')
         file.write(out)
 
-
-if __name__ == '__main__':
-
+def ConvertAll(pathcategory) :
     ####Open several file
-    list_file=[]
-    path="data/timeline/kml/"
-    outputpath="data/timeline/csv/"
-    outjson="data/timeline/json/"
-    files=os.listdir(path)
-
-
-    #make a list of kml file
-    for file in files :
+    list_file = []
+    path = "data/timeline/kml/"
+    outputpath = "data/timeline/csv/"
+    outjson = "data/timeline/json/"
+    files = os.listdir(path)
+    print(path)
+    # make a list of kml file
+    for file in files:
         if file.endswith(".kml"):
             list_file.append(file)
 
-    count=0
+    count = 0
 
-
-    for file in list_file :
-
-        pathfile=path+file
-        pathfile=os.path.abspath(pathfile)
-        #print('working directory',os.getcwd())
-        #print('path',pathfile)
-        root=openkml(pathfile)
+    for file in list_file:
+        pathfile = path + file
+        pathfile = os.path.abspath(pathfile)
+        # print('working directory',os.getcwd())
+        # print('path',pathfile)
+        root = openkml(pathfile)
 
         Placemark = root.Document.Placemark
         [name, coord, time, category] = KMLParser(Placemark)
         [name, coord, time, category] = clean(name, coord, time, category)
         ncat = make_category(name, category, "data/timeline/listcategoryM.csv")
-        #print("new category", ncat)
+        # print("new category", ncat)
 
-        output=outputpath+file.split('.')[0]+'.csv'
-        json_file=outjson+file.split('.')[0]+'.json'
+        output = outputpath + file.split('.')[0] + '.csv'
+        json_file = outjson + file.split('.')[0] + '.json'
         Writefile(output, name, coord, time, ncat)
         WriteJsonfile(json_file, name, coord, time, ncat)
-        count+=1
-        print(count,output,json_file)
+        count += 1
+        print(count, output, json_file)
 
+def Convert_one_file(date,pathcategory) :
+    path_file="data/timeline/kml/"+"history-"+date+".kml"
+    outputcsv = "data/timeline/csv/"+"history-"+date+".csv"
+    outjson = "data/timeline/json/"+"history-"+date+".json"
+    if (os.path.isfile(path_file)) :
+        root = openkml(path_file)
+
+        placemark = root.Document.Placemark
+        [name, coord, time, category] = KMLParser(placemark)
+        [name, coord, time, category] = clean(name, coord, time, category)
+        ncat = make_category(name, category, pathcategory)
+
+        Writefile(outputcsv, name, coord, time, ncat)
+        WriteJsonfile(outjson, name, coord, time, ncat)
+        print('KML conversion done')
+    else :
+        print("KML file don't exist for the date",)
+
+if __name__ == '__main__':
+    pathcategory="data/timeline/listcategoryM.csv"
+
+    argv = sys.argv[1:]
+    try:
+        opts, args = getopt.getopt(argv, "hd:a", "idate=")
+    except getopt.GetoptError:
+        print('Error check help : python timelineprocess.py -h')
+        sys.exit(2)
+    for opt, arg in opts:
+        if opt == '-h':
+            print
+            'python test.py -d <year-month-day> : Convert KML file corresponding to date if exist'
+            print('python test.py -a',': Convert all KML file in data/timeline/kml ')
+            sys.exit()
+        elif opt in ("-d", "--idate"):
+            Convert_one_file(str(arg),pathcategory)
+        elif opt=='-a':
+            ConvertAll(pathcategory)
