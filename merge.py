@@ -304,10 +304,30 @@ def make_data_dict(date,participant):
     data = data + sleep_data + emotion_data + rescue_data + location_data
     dict = listtodictionary(header, data)
     return dict
-def WriteJson_date(date,participant) :
+
+def make_data_dict_reduct(date,participant):
+    sleep_header, sleep_data = import_sleep(date)
+    emotion_header, emotion_data = import_emotion(date, participant)
+    stress_header, stress_data = import_stress(date, participant)
+
+    # Join the lists
+    header = []
+    header.append('Date')
+    header.append('UserID')
+    header.append(stress_header)
+    header = header + sleep_header + emotion_header
+    data = []
+    data.append(date)
+    data.append(int(participant))
+    data.append(stress_data)
+    data = data + sleep_data + emotion_data
+    dict = listtodictionary(header, data)
+    return dict
+def WriteJson_date(date,participant,info) :
     '''
     Write 1 Json file per date
     :param date: string year-month-day
+    :param info: string "all" or "reduct"
     :param participant: integer between (1 and 4)
     :return:
     '''
@@ -317,22 +337,29 @@ def WriteJson_date(date,participant) :
     dict={}
     pathjson='data/json/'+participant+'_'+date+'.json'
     key='User'+participant
-    dict[key]=make_data_dict(date,participant)
-
+    if info=='all':
+        dict[key]=make_data_dict(date,participant)
+    else :
+        dict[key] = make_data_dict_reduct(date, participant)
     with open(pathjson,'w',encoding='utf8') as jsonfile :
         json.dump(dict,jsonfile,indent=4)
     return 0
-def Create_update_json_all(date,participant) :
+def Create_update_json_all(date,participant,info ) :
     '''
     Create one Json file for all the data and update it if already exist
     :param date: string year-month-day
     :param participant: participant: integer between 1 and 4
+    :param info: string "all" or "reduct"
     :return:
     '''
     dict={}
     #key=participant+'_'+date
     key="User"+participant+'_'+date
-    dict[key]=make_data_dict(date,participant)
+
+    if info=='all':
+        dict[key]=make_data_dict(date,participant)
+    else :
+        dict[key] = make_data_dict_reduct(date, participant)
 
     path='data/all.json'
     if (os.path.isfile(path)) == False:
@@ -347,6 +374,38 @@ def Create_update_json_all(date,participant) :
         with open(path, 'w') as jsonfile:
             json.dump(data, jsonfile,indent=4)
         print("update",path)
+
+def create_all(date,participant):
+    """
+    Execute for all parameters
+    :param date: string year-month-day
+    :param participant: participant: integer between 1 and 4
+    :return:
+    """
+    rescuecommand = 'python extractrescuetime.py ' + '-d ' + date
+    timelinecommand = 'python timelineprocess.py ' + '-d ' + date
+    extractsleep = 'python extractsleep.py'
+
+    p1 = subprocess.Popen(rescuecommand)
+    p2 = subprocess.Popen(timelinecommand)
+    p3 = subprocess.Popen(extractsleep)
+
+    p1.wait()
+    p2.wait()
+    p3.wait()
+
+    Writecsv(date, participant)
+    WriteJson_date(date, participant,"all")
+    Create_update_json_all(date, participant,"all")
+
+def create_redut(date,partipant):
+    extractsleep = 'python extractsleep.py'
+    p3 = subprocess.Popen(extractsleep)
+    p3.wait()
+    Writecsv(date, participant)
+    WriteJson_date(date, participant, "reduct")
+    Create_update_json_all(date, participant, "reduct")
+
 if __name__ == '__main__':
     '''
     if len(sys.argv) > 1 :
@@ -355,9 +414,10 @@ if __name__ == '__main__':
     if len(sys.argv) == 1 :
         date = '2019-02-09'
     '''
+    all_param=False
     argv=sys.argv[1:]
     try:
-        opts, args = getopt.getopt(argv, "hd:p:", ["idate=","ipart"])
+        opts, args = getopt.getopt(argv, "hd:p:a", ["idate=","ipart"])
     except getopt.GetoptError:
         print('test.py -d <year-month-day> -p <participant_number>')
         sys.exit(2)
@@ -370,24 +430,13 @@ if __name__ == '__main__':
             date = arg
         elif opt in ("-p", "--ipart"):
             participant = arg
+        elif opt =='-a':
+            all_param=True
     print('Execution : ',date,'Participant',participant)
     date=str(date)
 
-    rescuecommand='python extractrescuetime.py '+'-d '+date
-    timelinecommand='python timelineprocess.py '+'-d '+date
-    extractsleep='python extractsleep.py'
-
-    p1=subprocess.Popen(rescuecommand)
-    p2=subprocess.Popen(timelinecommand)
-    p3=subprocess.Popen(extractsleep)
-
-    p1.wait()
-    p2.wait()
-    p3.wait()
-
-    Writecsv(date, participant)
-    WriteJson_date(date, participant)
-    Create_update_json_all(date, participant)
-
-
+    if all_param ==True:
+        create_all(date,participant)
+    else :
+        create_redut(date, participant)
 
