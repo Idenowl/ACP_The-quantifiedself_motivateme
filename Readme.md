@@ -71,8 +71,14 @@ This script convert the KML file into CSV and Json file. It also make new catego
 
 * Put KML file in data/timeline/kml
 * Run timelineprocess 
+For convert all KML file present in data/timeline/kml
 ```
-python timelineprocess.py
+python timelineprocess.py -a 
+```
+For convert one date 
+```
+python timelineprocess.py -d <year-month-day> 
+python timelineprocess.py -d 2019-02-19
 ```
 * The output files will be in data/timeline/csv and data/timeline/json 
 
