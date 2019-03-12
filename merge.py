@@ -341,7 +341,7 @@ def WriteJson_date(date,participant,info) :
         dict[key]=make_data_dict(date,participant)
     else :
         dict[key] = make_data_dict_reduct(date, participant)
-    with open(pathjson,'w',encoding='utf8') as jsonfile :
+    with open(pathjson,'w') as jsonfile :
         json.dump(dict,jsonfile,indent=4)
     return 0
 def Create_update_json_all(date,participant,info ) :
